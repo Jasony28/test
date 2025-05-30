@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu principal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Google Sign-in client ID -->
+    <meta name="google-signin-client_id" content="684161643762-cfa77jbd5miuv5i5klivpthv9g79hskr.apps.googleusercontent.com">
+    <!-- Police jolie -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:700,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .g-signin2 {
+            display: inline-block;
+            margin: 12px auto 18px auto;
+        }
+    </style>
+</head>
+<body class="fond-classement">
+    <div class="main-container">
+        <h1>Menu principal</h1>
+        <!-- Un seul bouton Google ici, bien visible -->
+        <div style="text-align:center;margin-bottom:26px;">
+            <div class="g-signin2" data-onsuccess="onSignIn"></div>
+        </div>
+        <div class="desc-page">Choisis ton application !</div>
+        <div id="apps-list"></div>
+    </div>
+    <script src="apps.js"></script>
+
+    <!-- MODAL POUR SCREAMER -->
+    <div id="screamer-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:99999;background:#000;justify-content:center;align-items:center;">
+        <img id="screamer-img" src="screamer.png" style="width:100vw;height:100vh;object-fit:cover;display:none;position:absolute;top:0;left:0;" />
+        <audio id="screamer-audio" src="screamer.mp3" preload="auto"></audio>
+        <button id="screamer-retour" class="btn-main" style="display:none;position:absolute;top:34px;right:38px;z-index:100000;">Retour</button>
+    </div>
+
+    <!-- Google Platform pour le bouton Login -->
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script>
+    function onSignIn(googleUser) {
+        var profile = googleUser.getBasicProfile();
+        alert("Bienvenue " + profile.getName() + " (" + profile.getEmail() + ")");
+        // Tu peux personnaliser ce qu'il se passe après connexion ici.
+    }
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('btn-screamer');
+        if (!btn) return;
+        btn.onclick = function() {
+            btn.disabled = true;
+            setTimeout(function() {
+                const modal = document.getElementById('screamer-modal');
+                const img = document.getElementById('screamer-img');
+                const audio = document.getElementById('screamer-audio');
+                const retourBtn = document.getElementById('screamer-retour');
+                modal.style.display = 'flex';
+                img.style.display = 'block';
+                retourBtn.style.display = 'block';
+                if (modal.requestFullscreen) modal.requestFullscreen();
+                else if (modal.webkitRequestFullscreen) modal.webkitRequestFullscreen();
+                else if (modal.mozRequestFullScreen) modal.mozRequestFullScreen();
+                else if (modal.msRequestFullscreen) modal.msRequestFullscreen();
+
+                audio.currentTime = 0;
+                audio.volume = 1;
+                audio.muted = false;
+                audio.play();
+
+                function fermerScreamer() {
+                    if (document.exitFullscreen) document.exitFullscreen();
+                    modal.style.display = 'none';
+                    img.style.display = 'none';
+                    retourBtn.style.display = 'none';
+                    audio.pause();
+                }
+
+                const autoClose = setTimeout(fermerScreamer, 2000);
+
+                retourBtn.onclick = function() {
+                    clearTimeout(autoClose);
+                    fermerScreamer();
+                };
+            }, 5000);
+        };
+    });
+    </script>
+</body>
+</html>
