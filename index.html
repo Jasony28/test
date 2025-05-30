@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <title>Menu principal</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Google Sign-in client ID -->
-    <meta name="google-signin-client_id" content="684161643762-cfa77jbd5miuv5i5klivpthv9g79hskr.apps.googleusercontent.com">
     <!-- Police jolie -->
     <link href="https://fonts.googleapis.com/css?family=Montserrat:700,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body.fond-classement {
             margin: 0;
@@ -139,19 +140,28 @@
             .main-container { margin: 24px 0 0 0; border-radius: 0; }
             #apps-list { gap: 9px; }
         }
-        .g-signin2 {
-            display: inline-block;
-            margin: 12px auto 18px auto;
-        }
     </style>
 </head>
 <body class="fond-classement">
     <div class="main-container">
-        <!-- TOUT ton contenu, design, styles conservés -->
         <h1>Menu principal</h1>
-        <!-- Un seul bouton Google ici, bien visible -->
+        <!-- Nouveau bouton Google avec Identity Services -->
         <div style="text-align:center;margin-bottom:26px;">
-            <div class="g-signin2" data-onsuccess="onSignIn"></div>
+            <div id="g_id_onload"
+                data-client_id="684161643762-cfa77jbd5miuv5i5klivpthv9g79hskr.apps.googleusercontent.com"
+                data-context="signin"
+                data-ux_mode="popup"
+                data-callback="onGoogleSignIn"
+                data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                data-type="standard"
+                data-shape="rectangular"
+                data-theme="filled_blue"
+                data-text="sign_in_with"
+                data-size="large"
+                data-logo_alignment="left">
+            </div>
         </div>
         <div class="desc-page">Choisis ton application !</div>
         <div id="apps-list"></div>
@@ -165,13 +175,23 @@
         <button id="screamer-retour" class="btn-main" style="display:none;position:absolute;top:34px;right:38px;z-index:100000;">Retour</button>
     </div>
 
-    <!-- Google Platform pour le bouton Login -->
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <!-- Google Identity callback -->
     <script>
-    function onSignIn(googleUser) {
-        var profile = googleUser.getBasicProfile();
-        alert("Bienvenue " + profile.getName() + " (" + profile.getEmail() + ")");
-        // Tu peux personnaliser ce qu'il se passe après connexion ici.
+    function onGoogleSignIn(response) {
+        // On décode le JWT pour afficher le nom et email de l'utilisateur
+        const data = parseJwt(response.credential);
+        alert("Bienvenue " + data.name + " (" + data.email + ")");
+        // Ici tu peux aussi afficher la photo : data.picture
+    }
+
+    function parseJwt (token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
     }
     </script>
     <script>
